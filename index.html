@@ -93,7 +93,7 @@ const TOOLS=[['timer','計時器'],['word','大字顯示'],['pick','抽籤點名
 const KEY='xj_classroom_screen';
 let S={roster:[],teams:['第1組','第2組','第3組','第4組'].map(n=>({n,s:0})),word:'請安靜',used:[]};
 try{Object.assign(S,JSON.parse(localStorage.getItem(KEY)||'{}'))}catch(e){}
-const CLOUD_URL=''; // 部署 Apps Script 後，把網頁應用程式網址貼在這裡（或在「雲端」分頁輸入）
+const CLOUD_URL='https://script.google.com/macros/s/AKfycby6rpTFzco1mnHR4TVQzOhytqYCy8HjMw0NsXzmjcYaYeBYbKarAoz9fvHtd-aj3Mg/exec'; // 部署 Apps Script 後，把網頁應用程式網址貼在這裡（或在「雲端」分頁輸入）
 const persist=()=>{try{localStorage.setItem(KEY,JSON.stringify(S))}catch(e){}};
 let syncT=null;
 const save=()=>{persist();const C=S.cloud;if(C&&C.auto&&C.url&&C.code&&C.h){clearTimeout(syncT);syncT=setTimeout(()=>push().then(r=>{const m=$('#ms');if(m)m.textContent=r.ok?'已自動上傳':(r.conflict?'雲端有較新資料，請先下載':r.msg||'上傳失敗')}).catch(()=>{}),3000)}};
