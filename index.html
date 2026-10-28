@@ -1,0 +1,263 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>興嘉教室大螢幕</title>
+<style>
+:root{--bg:#1d3832;--bg2:#264a42;--chalk:#f4f0e3;--dim:#a9bdb4;--yel:#f2c94c;--red:#ef6f5e;--grn:#6fcf97;--blu:#7cc4e8;--line:#3d6358}
+*{box-sizing:border-box}
+html,body{height:100%;margin:0}
+body{background:var(--bg);color:var(--chalk);font-family:"Noto Sans TC","PingFang TC","Microsoft JhengHei",sans-serif;display:flex;flex-direction:column;font-size:18px}
+header{display:flex;align-items:center;gap:8px;padding:8px 14px;background:var(--bg2);border-bottom:2px solid var(--line);flex-wrap:wrap}
+h1{font-size:20px;margin:0 10px 0 0;font-weight:700;letter-spacing:.05em}
+nav{display:flex;gap:6px;flex-wrap:wrap;flex:1}
+button,select,input,textarea{font:inherit;color:inherit}
+.tab{background:transparent;border:2px solid var(--line);border-radius:10px;padding:6px 14px;cursor:pointer}
+.tab.on{background:var(--yel);color:#2a2a1a;border-color:var(--yel);font-weight:700}
+.tab:focus-visible,.btn:focus-visible{outline:3px solid var(--blu);outline-offset:2px}
+main{flex:1;min-height:0;overflow:auto;padding:18px;display:flex;flex-direction:column;align-items:center;justify-content:flex-start;gap:16px;text-align:center}
+main>:first-child{margin-top:auto}main>:last-child{margin-bottom:auto}
+#cv{min-height:50vh}
+.btn{background:var(--chalk);color:#1d3832;border:0;border-radius:12px;padding:10px 22px;cursor:pointer;font-weight:700}
+.btn.alt{background:transparent;color:var(--chalk);border:2px solid var(--chalk)}
+.btn.go{background:var(--yel)}
+.row{display:flex;gap:10px;flex-wrap:wrap;justify-content:center;align-items:center}
+.big{font-size:min(26vw,36vh);font-weight:800;line-height:1;font-variant-numeric:tabular-nums;letter-spacing:.02em}
+.warn{color:var(--red)}
+input[type=number],input[type=text],textarea,select{background:var(--bg2);border:2px solid var(--line);border-radius:10px;padding:8px 12px}
+textarea{width:min(520px,92vw);min-height:220px}
+.bw{font-size:min(18vw,30vh);font-weight:800;line-height:1.15;word-break:break-all;max-width:96vw}
+.lights{display:flex;gap:22px;background:#12231f;padding:22px;border-radius:40px;border:3px solid var(--line)}
+.lt{width:min(22vw,26vh);height:min(22vw,26vh);border-radius:50%;opacity:.22;cursor:pointer;border:0}
+.lt.on{opacity:1;box-shadow:0 0 50px currentColor}
+.teams{display:grid;grid-template-columns:repeat(auto-fit,minmax(170px,1fr));gap:14px;width:100%;max-width:1100px}
+.team{background:var(--bg2);border:2px solid var(--line);border-radius:16px;padding:14px}
+.team input{width:100%;text-align:center;margin-bottom:6px}
+.score{font-size:min(14vw,16vh);font-weight:800;line-height:1.1}
+.pick{font-size:min(16vw,24vh);font-weight:800;color:var(--yel)}
+.hist{color:var(--dim);font-size:16px;max-width:90vw}
+small,.hint{color:var(--dim);font-size:15px}
+body.focus header{display:none}
+#fb{position:fixed;top:8px;right:8px;z-index:9;display:flex;gap:6px;opacity:.5}
+#fb[hidden]{display:none}
+#fb:hover,#fb:focus-within{opacity:1}
+#fb .tab{background:var(--bg2)}
+body.focus:not(.peek) main .row,body.focus:not(.peek) main label,body.focus:not(.peek) main select,body.focus:not(.peek) main textarea,body.focus:not(.peek) main p,body.focus:not(.peek) main .hint,body.focus:not(.peek) main .hist,body.focus:not(.peek) main>input{display:none}
+body.focus main{justify-content:center;align-items:center}
+body.focus main>*{margin-top:0;margin-bottom:0}
+body.focus main>.big,body.focus main>.bw,body.focus main>.pick,body.focus main>.die{width:100%}
+body.focus:not(.peek) .team input{border-color:transparent;background:transparent;pointer-events:none;font-size:1.5em;font-weight:700}
+.scene{display:flex;justify-content:center;align-items:center;gap:3vw;min-height:38vh;flex-wrap:wrap}
+.hop{position:relative;padding:2vh 1vw 3vh}
+.air{perspective:1000px}
+.tilt{transform-style:preserve-3d;transform:rotateX(-20deg) rotateY(25deg)}
+.cube{width:var(--sz);height:var(--sz);position:relative;transform-style:preserve-3d}
+.face{position:absolute;inset:0;background:linear-gradient(145deg,#fffdf5,#e8e3d2);border-radius:14%;display:grid;grid-template:repeat(3,1fr)/repeat(3,1fr);padding:12%;box-shadow:inset 0 0 0 2px #cfc8b0,inset 0 -8px 16px rgba(0,0,0,.12)}
+.face i{place-self:center;width:66%;aspect-ratio:1;border-radius:50%;background:#222;box-shadow:inset 0 3px 5px rgba(0,0,0,.6)}
+.f1 i{background:#d64545;width:80%}
+.f1{transform:translateZ(calc(var(--sz)/2))}
+.f2{transform:rotateY(90deg) translateZ(calc(var(--sz)/2))}
+.f3{transform:rotateX(90deg) translateZ(calc(var(--sz)/2))}
+.f4{transform:rotateX(-90deg) translateZ(calc(var(--sz)/2))}
+.f5{transform:rotateY(-90deg) translateZ(calc(var(--sz)/2))}
+.f6{transform:rotateY(180deg) translateZ(calc(var(--sz)/2))}
+.shd{position:absolute;left:8%;right:8%;bottom:0;height:3vh;background:radial-gradient(ellipse,rgba(0,0,0,.5),transparent 70%)}
+.coin2{width:var(--cs);height:var(--cs);border-radius:50%;background:radial-gradient(circle at 35% 30%,#ffe98a,#f2c94c 55%,#c9971c);display:flex;align-items:center;justify-content:center;font-size:calc(var(--cs)*.5);font-weight:800;color:#8a6410;box-shadow:inset 0 0 0 calc(var(--cs)*.04) #e0b43a,inset 0 0 0 calc(var(--cs)*.055) #b88915,0 calc(var(--cs)*.04) 0 #a67c14,0 calc(var(--cs)*.07) 14px rgba(0,0,0,.35)}
+@keyframes hop{0%{transform:translateY(0)}35%{transform:translateY(-14vh)}60%{transform:translateY(0)}75%{transform:translateY(-4vh)}100%{transform:translateY(0)}}
+.jump .air{animation:hop var(--dur,1.4s) ease-out}
+@media (max-width:800px){
+header{padding:6px 10px;gap:6px}
+h1{font-size:17px;margin:0;flex:1}
+#fs{order:2;padding:4px 12px}
+nav{order:3;flex:0 0 100%;flex-wrap:nowrap;overflow-x:auto;padding-bottom:4px;-webkit-overflow-scrolling:touch}
+.tab{white-space:nowrap;padding:5px 12px;font-size:16px;flex:0 0 auto}
+main{padding:12px}
+.big{font-size:min(24vw,30vh)}
+}
+@media (prefers-reduced-motion:no-preference){.spin{animation:s .5s}@keyframes s{from{transform:rotate(-20deg) scale(.7)}to{transform:none}}}
+</style>
+</head>
+<body>
+<header>
+  <h1>興嘉教室大螢幕</h1>
+  <nav id="nav"></nav>
+  <button class="tab" id="fs">全螢幕</button>
+</header>
+<div id="fb" hidden><button class="tab" id="pk">控制</button><button class="tab" id="xf">退出</button></div>
+<main id="stage"></main>
+
+<script>
+const $=s=>document.querySelector(s);
+const TOOLS=[['timer','計時器'],['word','大字顯示'],['pick','抽籤點名'],['team','小組記分'],['light','紅綠燈'],['dice','骰子硬幣'],['board','白板'],['roster','名冊'],['cloud','雲端']];
+const KEY='xj_classroom_screen';
+let S={roster:[],teams:['第1組','第2組','第3組','第4組'].map(n=>({n,s:0})),word:'請安靜',used:[]};
+try{Object.assign(S,JSON.parse(localStorage.getItem(KEY)||'{}'))}catch(e){}
+const CLOUD_URL=''; // 部署 Apps Script 後，把網頁應用程式網址貼在這裡（或在「雲端」分頁輸入）
+const persist=()=>{try{localStorage.setItem(KEY,JSON.stringify(S))}catch(e){}};
+let syncT=null;
+const save=()=>{persist();const C=S.cloud;if(C&&C.auto&&C.url&&C.code&&C.h){clearTimeout(syncT);syncT=setTimeout(()=>push().then(r=>{const m=$('#ms');if(m)m.textContent=r.ok?'已自動上傳':(r.conflict?'雲端有較新資料，請先下載':r.msg||'上傳失敗')}).catch(()=>{}),3000)}};
+const sha=async t=>[...new Uint8Array(await crypto.subtle.digest('SHA-256',new TextEncoder().encode(t)))].map(b=>b.toString(16).padStart(2,'0')).join('');
+async function api(op,extra){const C=S.cloud;const r=await fetch(C.url,{method:'POST',body:JSON.stringify({op,code:C.code,h:C.h,...extra})});return r.json()}
+async function push(force){const r=await api('save',{data:{roster:S.roster,teams:S.teams,word:S.word},base:S.cloud.base,force:!!force});if(r.ok){S.cloud.base=r.updatedAt;persist()}return r}
+let cur='timer',tick=null;
+const esc=t=>String(t).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+
+function beep(n=3){try{const a=new (window.AudioContext||window.webkitAudioContext)();for(let i=0;i<n;i++){const o=a.createOscillator(),g=a.createGain();o.frequency.value=880;o.connect(g);g.connect(a.destination);const t=a.currentTime+i*.5;g.gain.setValueAtTime(.25,t);g.gain.exponentialRampToValueAtTime(.001,t+.4);o.start(t);o.stop(t+.45)}}catch(e){}}
+
+function nav(){$('#nav').innerHTML=TOOLS.map(([k,n])=>`<button class="tab ${k===cur?'on':''}" data-k="${k}">${n}</button>`).join('');
+ $('#nav').querySelectorAll('button').forEach(b=>b.onclick=()=>go(b.dataset.k))}
+function go(k){cur=k;clearInterval(tick);const s=$('#stage');s.style.padding='';s.style.justifyContent='';nav();V[k]()}
+const fsEl=()=>document.fullscreenElement||document.webkitFullscreenElement;
+const setFocus=on=>{document.body.classList.toggle('focus',on);document.body.classList.remove('peek');$('#fb').hidden=!on;$('#pk').textContent='控制'};
+$('#fs').onclick=async()=>{
+ const d=document.documentElement,rq=d.requestFullscreen||d.webkitRequestFullscreen;
+ if(rq){try{await rq.call(d);setFocus(true);return}catch(e){}}
+ setFocus(true)};
+$('#pk').onclick=()=>{const on=document.body.classList.toggle('peek');$('#pk').textContent=on?'隱藏控制':'控制'};
+$('#xf').onclick=()=>{if(fsEl())(document.exitFullscreen||document.webkitExitFullscreen).call(document);setFocus(false)};
+document.addEventListener('fullscreenchange',()=>{if(!fsEl())setFocus(false)});
+
+const V={
+timer(){
+ let left=300,run=false,total=300,exam=true,bell=true,end=0;
+ $('#stage').innerHTML=`<div class="big" id="d">05:00</div><div class="row" id="pre"></div>
+ <div class="row"><input type="number" id="m" min="1" max="180" value="5" style="width:90px"> 分鐘
+ <button class="btn go" id="go">開始</button><button class="btn alt" id="rs">重設</button></div>
+ <div class="row"><label><input type="checkbox" id="ex" checked> 考試模式（最後5分鐘紅字）</label><label><input type="checkbox" id="bl" checked> 鈴聲</label></div>`;
+ const show=()=>{const m=Math.floor(left/60),s=left%60,d=$('#d');d.textContent=String(m).padStart(2,'0')+':'+String(s).padStart(2,'0');d.classList.toggle('warn',exam&&total>300&&left<=300&&left>0||left===0)};
+ const set=m=>{total=left=Math.max(1,m)*60;run=false;clearInterval(tick);$('#go').textContent='開始';$('#m').value=m;show()};
+ $('#pre').innerHTML=[1,3,5,10,20,40,60].map(m=>`<button class="btn alt" data-m="${m}">${m}分</button>`).join('');
+ $('#pre').querySelectorAll('button').forEach(b=>b.onclick=()=>set(+b.dataset.m));
+ $('#m').onchange=e=>set(+e.target.value||5);
+ $('#ex').onchange=e=>{exam=e.target.checked;show()};$('#bl').onchange=e=>bell=e.target.checked;
+ $('#rs').onclick=()=>set(total/60);
+ $('#go').onclick=()=>{if(run){run=false;clearInterval(tick);$('#go').textContent='繼續';return}
+  if(left<=0)left=total;run=true;end=Date.now()+left*1000;$('#go').textContent='暫停';
+  tick=setInterval(()=>{left=Math.max(0,Math.round((end-Date.now())/1000));show();if(left===0){clearInterval(tick);run=false;$('#go').textContent='開始';if(bell)beep();$('#d').textContent='時間到'}},250)};
+ show()},
+
+word(){
+ $('#stage').innerHTML=`<div class="bw" id="w">${esc(S.word)}</div>
+ <div class="row" id="q"></div>
+ <div class="row"><input type="text" id="t" value="${esc(S.word)}" style="width:min(420px,80vw)"><button class="btn go" id="ok">顯示</button></div>`;
+ const f=t=>{S.word=t;save();$('#w').textContent=t;$('#t').value=t};
+ $('#q').innerHTML=['請安靜','請坐好','考試開始','考試結束','下課','集合','午休'].map(t=>`<button class="btn alt">${t}</button>`).join('');
+ $('#q').querySelectorAll('button').forEach(b=>b.onclick=()=>f(b.textContent));
+ $('#ok').onclick=()=>f($('#t').value||' ');$('#t').onkeydown=e=>{if(e.key==='Enter')$('#ok').click()}},
+
+pick(){
+ if(!S.roster.length){$('#stage').innerHTML=`<p>名冊是空的，請先到「名冊」貼上學生名單。</p><button class="btn go" id="g">前往名冊</button>`;$('#g').onclick=()=>go('roster');return}
+ $('#stage').innerHTML=`<div class="pick" id="p">？</div><div class="hist" id="h"></div>
+ <div class="row"><button class="btn go" id="d">抽！</button><label><input type="checkbox" id="nr" checked> 不重複</label><button class="btn alt" id="rs">重新開始</button></div>`;
+ const h=()=>$('#h').textContent=S.used.length?'已抽：'+S.used.join('、'):'';h();
+ $('#rs').onclick=()=>{S.used=[];save();h();$('#p').textContent='？'};
+ $('#d').onclick=()=>{let pool=S.roster.filter(n=>!$('#nr').checked||!S.used.includes(n));
+  if(!pool.length){$('#p').textContent='抽完了';return}
+  let i=0;const b=$('#d');b.disabled=true;const iv=setInterval(()=>{$('#p').textContent=pool[Math.floor(Math.random()*pool.length)];if(++i>14){clearInterval(iv);const r=pool[Math.floor(Math.random()*pool.length)];$('#p').textContent=r;if($('#nr').checked)S.used.push(r);save();h();b.disabled=false}},70)}},
+
+team(){
+ const draw=()=>{$('#stage').innerHTML=`<div class="teams">${S.teams.map((t,i)=>`<div class="team"><input type="text" value="${esc(t.n)}" data-i="${i}"><div class="score">${t.s}</div>
+ <div class="row"><button class="btn alt" data-a="-1" data-i="${i}">−1</button><button class="btn go" data-a="1" data-i="${i}">+1</button><button class="btn" data-a="5" data-i="${i}">+5</button></div></div>`).join('')}</div>
+ <div class="row"><button class="btn alt" id="add">增加一組</button><button class="btn alt" id="del">減少一組</button><button class="btn alt" id="z">分數歸零</button></div>`;
+  $('#stage').querySelectorAll('input').forEach(e=>e.onchange=()=>{S.teams[+e.dataset.i].n=e.value;save()});
+  $('#stage').querySelectorAll('button[data-a]').forEach(b=>b.onclick=()=>{S.teams[+b.dataset.i].s+=+b.dataset.a;save();draw()});
+  $('#add').onclick=()=>{if(S.teams.length<10){S.teams.push({n:'第'+(S.teams.length+1)+'組',s:0});save();draw()}};
+  $('#del').onclick=()=>{if(S.teams.length>1){S.teams.pop();save();draw()}};
+  $('#z').onclick=()=>{S.teams.forEach(t=>t.s=0);save();draw()}};draw()},
+
+light(){
+ const L=[['var(--red)','安靜'],['var(--yel)','小聲討論'],['var(--grn)','自由討論']];let on=0;
+ $('#stage').innerHTML=`<div class="lights">${L.map((l,i)=>`<button class="lt" style="background:${l[0]};color:${l[0]}" data-i="${i}" aria-label="${l[1]}"></button>`).join('')}</div><div class="pick" id="lb"></div>`;
+ const set=i=>{on=i;$('#stage').querySelectorAll('.lt').forEach((b,j)=>b.classList.toggle('on',j===i));$('#lb').textContent=L[i][1];$('#lb').style.color=L[i][0]};
+ $('#stage').querySelectorAll('.lt').forEach(b=>b.onclick=()=>set(+b.dataset.i));set(0)},
+
+dice(){
+ const PIP={1:[4],2:[0,8],3:[0,4,8],4:[0,2,6,8],5:[0,2,4,6,8],6:[0,2,3,5,6,8]};
+ const BASE={1:[0,0],6:[0,180],2:[0,-90],5:[0,90],3:[-90,0],4:[90,0]};
+ let mode='d',dice=[],coinA=0,busy=false;
+ $('#stage').innerHTML=`<div class="scene" id="sc"></div><div class="pick" id="rs" style="font-size:min(10vw,12vh)">&nbsp;</div>
+ <div class="row"><button class="btn go" id="d">擲骰子</button><button class="btn alt" id="c">擲硬幣</button><select id="n"><option>1</option><option>2</option><option>3</option></select> 顆骰子</div>`;
+ const sc=()=>$('#sc'),lock=v=>{busy=v;$('#d').disabled=$('#c').disabled=v};
+ const face=f=>`<div class="face f${f}">${PIP[f].map(i=>`<i style="grid-area:${Math.floor(i/3)+1}/${i%3+1}"></i>`).join('')}</div>`;
+ const buildDice=n=>{sc().style.setProperty('--sz',n==1?'min(34vw,34vh)':n==2?'min(26vw,30vh)':'min(22vw,26vh)');
+  sc().innerHTML=Array.from({length:n},()=>`<div class="hop"><div class="air"><div class="tilt"><div class="cube">${[1,2,3,4,5,6].map(face).join('')}</div></div></div><div class="shd"></div></div>`).join('');
+  dice=Array.from({length:n},()=>({x:0,y:0}));mode='d'};
+ let raf=0;
+ const buildCoin=()=>{sc().style.setProperty('--cs','min(40vw,38vh)');
+  sc().innerHTML=`<div class="hop"><div class="coin2" id="cn">正</div><div class="shd"></div></div>`;mode='c'};
+ const jump=(h,sec)=>{h.classList.remove('jump');void h.offsetWidth;h.style.setProperty('--dur',sec+'s');h.classList.add('jump')};
+ const rollDice=()=>{if(busy)return;const n=+$('#n').value;
+  if(mode!=='d'||dice.length!==n){buildDice(n);void sc().offsetWidth}
+  lock(true);$('#rs').innerHTML='&nbsp;';const res=[],hops=sc().querySelectorAll('.hop');
+  sc().querySelectorAll('.cube').forEach((c,i)=>{const r=1+Math.floor(Math.random()*6);res.push(r);const[bx,by]=BASE[r],d=dice[i],sec=1.3+i*.2;
+   d.x=bx+360*(Math.round(d.x/360)+2+Math.floor(Math.random()*2));d.y=by+360*(Math.round(d.y/360)+2+Math.floor(Math.random()*2));
+   c.style.transition=`transform ${sec}s cubic-bezier(.15,.7,.2,1)`;c.style.transform=`rotateX(${d.x}deg) rotateY(${d.y}deg)`;jump(hops[i],sec)});
+  setTimeout(()=>{$('#rs').textContent=n==1?res[0]:res.join(' + ')+' = '+res.reduce((a,b)=>a+b,0);lock(false)},1400+n*200)};
+ const flipCoin=()=>{if(busy)return;if(mode!=='c')buildCoin();
+  lock(true);$('#rs').innerHTML='&nbsp;';const heads=Math.random()<.5,cn=$('#cn');
+  const total=Math.PI*2*(5+Math.floor(Math.random()*3))+(heads?0:Math.PI),dur=1800,H=window.innerHeight*.2,t0=performance.now();
+  const step=now=>{const t=Math.min(1,(now-t0)/dur),p=1-Math.pow(1-t,3),th=total*p,c=Math.cos(th);
+   cn.textContent=c>=0?'正':'反';
+   cn.style.transform=`translateY(${-4*t*(1-t)*H}px) scaleY(${Math.max(.04,Math.abs(c))})`;
+   if(t<1)raf=requestAnimationFrame(step);else{cn.style.transform='';$('#rs').textContent=heads?'正面':'反面';lock(false)}};
+  cancelAnimationFrame(raf);raf=requestAnimationFrame(step)};
+ $('#d').onclick=rollDice;$('#c').onclick=flipCoin;
+ $('#n').onchange=()=>{if(!busy){buildDice(+$('#n').value);$('#rs').innerHTML='&nbsp;'}};
+ buildDice(1)},
+
+board(){
+ const st=$('#stage');st.style.padding='8px';st.style.justifyContent='flex-start';
+ st.innerHTML=`<div class="row" id="tb"></div><canvas id="cv" style="flex:1;width:100%;background:#fbfaf4;border-radius:12px;touch-action:none;cursor:crosshair"></canvas>`;
+ const cols=['#222222','#d64545','#2f7fd1','#2e9e5b','#e0a100'],tb=$('#tb');let col=cols[0],w=5,er=false,hist=[];
+ tb.innerHTML=cols.map(c=>`<button class="btn" data-c="${c}" style="background:${c};width:44px;height:44px;padding:0" aria-label="顏色"></button>`).join('')+
+ `<button class="btn alt" id="er">橡皮擦</button><select id="w"><option value="3">細</option><option value="5" selected>中</option><option value="10">粗</option></select><button class="btn alt" id="un">復原</button><button class="btn alt" id="cl">清除</button><button class="btn go" id="sv">存成圖片</button>`;
+ const cv=$('#cv'),x=cv.getContext('2d');
+ const fit=()=>{const r=cv.getBoundingClientRect(),img=cv.width?x.getImageData(0,0,cv.width,cv.height):null;cv.width=r.width;cv.height=r.height;x.fillStyle='#fbfaf4';x.fillRect(0,0,cv.width,cv.height);if(img)x.putImageData(img,0,0)};
+ setTimeout(fit,0);
+ tb.querySelectorAll('[data-c]').forEach(b=>b.onclick=()=>{col=b.dataset.c;er=false;$('#er').classList.remove('on')});
+ $('#er').onclick=()=>{er=!er;$('#er').style.background=er?'var(--yel)':'';$('#er').style.color=er?'#222':''};
+ $('#w').onchange=e=>w=+e.target.value;
+ let d=false,lx=0,ly=0;
+ const pos=e=>{const r=cv.getBoundingClientRect();return[e.clientX-r.left,e.clientY-r.top]};
+ cv.onpointerdown=e=>{hist.push(x.getImageData(0,0,cv.width,cv.height));if(hist.length>20)hist.shift();d=true;[lx,ly]=pos(e);cv.setPointerCapture(e.pointerId);x.beginPath();x.arc(lx,ly,(er?w*3:w)/2,0,7);x.fillStyle=er?'#fbfaf4':col;x.fill()};
+ cv.onpointermove=e=>{if(!d)return;const[px,py]=pos(e);x.strokeStyle=er?'#fbfaf4':col;x.lineWidth=er?w*3:w;x.lineCap='round';x.beginPath();x.moveTo(lx,ly);x.lineTo(px,py);x.stroke();lx=px;ly=py};
+ cv.onpointerup=cv.onpointercancel=()=>d=false;
+ $('#un').onclick=()=>{const h=hist.pop();if(h)x.putImageData(h,0,0)};
+ $('#cl').onclick=()=>{hist.push(x.getImageData(0,0,cv.width,cv.height));x.fillStyle='#fbfaf4';x.fillRect(0,0,cv.width,cv.height)};
+ $('#sv').onclick=()=>{const a=document.createElement('a');a.download='白板.png';a.href=cv.toDataURL('image/png');a.click()}},
+
+cloud(){
+ const C=S.cloud=S.cloud||{url:CLOUD_URL,code:'',h:'',auto:false,base:0};
+ if(!C.url)C.url=CLOUD_URL;
+ $('#stage').innerHTML=`<p>用班級代碼把名冊、組別與大字內容同步到雲端，換電腦也能接續使用。<br><small>同步內容：名冊、小組記分、大字顯示。</small></p>
+ <div class="row"><input type="text" id="u" placeholder="Apps Script 網址" value="${esc(C.url)}" style="width:min(560px,90vw)"></div>
+ <div class="row"><input type="text" id="cd" placeholder="班級代碼（英數6碼以上）" value="${esc(C.code)}"><input type="password" id="pw" placeholder="${C.h?'密碼（已設定，可留空）':'密碼'}"></div>
+ <div class="row"><button class="btn go" id="rg">註冊新班級</button><button class="btn" id="dn">從雲端下載</button><button class="btn" id="up">上傳到雲端</button><button class="btn alt" id="fu">強制上傳</button></div>
+ <label><input type="checkbox" id="au" ${C.auto?'checked':''}> 修改後自動上傳</label>
+ <p id="ms" class="hint" role="status"></p>`;
+ const msg=t=>$('#ms').textContent=t;
+ const prep=async()=>{C.url=$('#u').value.trim();C.code=$('#cd').value.trim();const pw=$('#pw').value;
+  if(!C.url)throw'請先填入 Apps Script 網址';if(C.code.length<4)throw'班級代碼至少 4 碼';
+  if(pw)C.h=await sha(C.code+':'+pw);if(!C.h)throw'請輸入密碼';persist()};
+ const run=f=>async()=>{try{msg('處理中…');await prep();await f()}catch(e){msg(typeof e==='string'?e:'連線失敗，請檢查網址與網路')}};
+ $('#au').onchange=e=>{C.auto=e.target.checked;persist()};
+ $('#rg').onclick=run(async()=>{const r=await api('register',{data:{roster:S.roster,teams:S.teams,word:S.word}});if(r.ok){C.base=r.updatedAt;persist();msg('註冊完成，目前資料已上傳')}else msg(r.msg)});
+ $('#dn').onclick=run(async()=>{const r=await api('load');if(!r.ok)return msg(r.msg);Object.assign(S,r.data);C.base=r.updatedAt;persist();msg('已下載：名冊 '+(S.roster||[]).length+' 位、'+S.teams.length+' 組')});
+ $('#up').onclick=run(async()=>{const r=await push(false);msg(r.ok?'已上傳':(r.conflict?'雲端有較新資料：請先下載，或按「強制上傳」覆蓋':r.msg))});
+ $('#fu').onclick=run(async()=>{const r=await push(true);msg(r.ok?'已強制上傳':r.msg)})},
+
+roster(){
+ $('#stage').innerHTML=`<p>每行一位學生，可直接從 Excel 或校務系統貼上整欄。<br><small>目前 <b id="c">${S.roster.length}</b> 位；名單只存在這台電腦的瀏覽器。</small></p>
+ <textarea id="ta">${esc(S.roster.join('\n'))}</textarea>
+ <div class="row"><button class="btn go" id="s">儲存名單</button><button class="btn alt" id="n">填入 1~30 號</button><button class="btn alt" id="x">清空</button></div>`;
+ const rd=()=>$('#ta').value.split(/\r?\n/).map(s=>s.trim()).filter(Boolean);
+ $('#ta').oninput=()=>$('#c').textContent=rd().length;
+ $('#s').onclick=()=>{S.roster=rd();S.used=[];save();$('#c').textContent=S.roster.length;$('#s').textContent='已儲存'; setTimeout(()=>$('#s').textContent='儲存名單',1200)};
+ $('#n').onclick=()=>{$('#ta').value=Array.from({length:30},(_,i)=>i+1+'號').join('\n');$('#ta').oninput()};
+ $('#x').onclick=()=>{$('#ta').value='';$('#ta').oninput()}}
+};
+nav();V.timer();
+</script>
+</body>
+</html>
